@@ -14,6 +14,7 @@
 class Application {
     public:
         Application();
+        void run();
 
     private:
         std::shared_ptr<Window> window;
@@ -22,10 +23,10 @@ class Application {
         std::shared_ptr<Shader> shadow_shader;
         std::shared_ptr<Engine::World> world;
 
-        void draw();
         EventDispatcher m_event_dispatcher;
 
         double deltaTime = 0.0f;
 
         void drawDebugMenu(double deltaTime);
+        void mainloop();
 };

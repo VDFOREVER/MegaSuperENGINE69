@@ -3,7 +3,11 @@
 #include <map>
 
 void Camera::update_camera() {
-    front   = glm::normalize(glm::rotate(rotation, WORLD_FRONT));
+    front.x = cos(rotation.y) * cos(rotation.x);
+    front.y = sin(rotation.x);
+    front.z = sin(rotation.y) * cos(rotation.x);
+    front = glm::normalize(front);
+
     right   = glm::normalize(glm::cross(front, WORLD_UP));
     up      = glm::normalize(glm::cross(right, front));
 
@@ -32,13 +36,19 @@ void Camera::update(double deltaTime) {
 
 
 void Camera::process_mouse_movement(float xoffset, float yoffset, GLboolean constrainpitch) {
-    float angleX = xoffset * mouse_sensitivity;
-    float angleY = yoffset * mouse_sensitivity;
+    xoffset *= mouse_sensitivity;
+    yoffset *= mouse_sensitivity;
 
-    glm::quat pitch = glm::normalize(glm::angleAxis(-angleY, WORLD_RIGHT));
-    glm::quat yaw = glm::normalize(glm::angleAxis(-angleX, WORLD_UP));
+    rotation.x -= yoffset;
+    rotation.y += xoffset;
 
-    this->rotation = glm::normalize(yaw * rotation * pitch);
+    if (constrainpitch) {
+        const float pitch_limit = glm::radians(89.0f);
+        if (rotation.x > pitch_limit)
+            rotation.x = pitch_limit;
+        if (rotation.x < -pitch_limit)
+            rotation.x = -pitch_limit;
+    }
 
     update_camera();
 }
@@ -74,7 +84,7 @@ void Camera::set_position(glm::vec3 position) {
 }
 
 void Camera::set_rotation(glm::quat rotation) {
-    this->rotation = rotation;
+    this->rotation = glm::eulerAngles(rotation);
 
     update_camera();
 }

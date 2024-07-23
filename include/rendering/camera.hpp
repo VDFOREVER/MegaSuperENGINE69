@@ -59,9 +59,7 @@ class Camera {
         float znear;
 
         glm::vec3 position  = glm::vec3(0.0f, 0.0f, 0.0f);
-        glm::quat rotation  = glm::quat(glm::vec3(0.0f, 0.0f, 0.0f));
-
-        float currentPitch;
+        glm::vec3 rotation  = glm::vec3(0.0f, 0.0f, 0.0f);
 
         glm::vec3 front     = WORLD_FRONT;
         glm::vec3 up        = WORLD_UP;

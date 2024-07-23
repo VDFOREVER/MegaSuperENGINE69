@@ -9,10 +9,10 @@
 #include <utils.hpp>
 
 Application::Application() {
-    window = std::make_shared<Window>("VD3D", 640, 420);
-    shader = std::make_shared<Shader>("../resource/shader/lighting_vs.glsl", "../resource/shader/lighting_ps.glsl");
-    shadow_shader = std::make_shared<Shader>("../resource/shader/shadow_vs.glsl", "../resource/shader/shadow_ps.glsl");
-    world = std::make_shared<Engine::World>("main", "../resource/model/untitled.glb", shader, shadow_shader);
+    window          = std::make_shared<Window>("VD3D", 640, 420);
+    shader          = std::make_shared<Shader>("../resource/shader/lighting_vs.glsl", "../resource/shader/lighting_ps.glsl");
+    shadow_shader   = std::make_shared<Shader>("../resource/shader/shadow_vs.glsl", "../resource/shader/shadow_ps.glsl");
+    world           = std::make_shared<Engine::World>("main", "../resource/model/untitled.glb", shader, shadow_shader);
 
     std::vector<std::string> faces = {
         "../resource/skybox/right.jpg",
@@ -103,18 +103,16 @@ Application::Application() {
             if (event.key_code == KeyCode::KEY_LEFT_SHIFT)
                 camera->acceleration = false;
         }); 
+}
 
+void Application::run() {
     glEnable(GL_CULL_FACE);
     glCullFace(GL_BACK); 
 
     glEnable(GL_DEPTH_TEST);
     glDepthFunc(GL_LESS);
 
-    while (!window->is_close()) {
-        draw();
-    }
-
-    LOG_INFO("Application closed");
+    mainloop();
 }
 
 void Application::drawDebugMenu(double deltaTime) {
@@ -224,23 +222,29 @@ void Application::drawDebugMenu(double deltaTime) {
     ImGui::End();
 }
 
-void Application::draw() {
-    static double lastFrameTime = 0.0f;
+void Application::mainloop() {
+    LOG_INFO("Entering mainloop");
 
-    double currentFrame = glfwGetTime();
-    deltaTime = currentFrame - lastFrameTime;
-    lastFrameTime = currentFrame;
+    while (!window->is_close()) {
+        static double lastFrameTime = 0.0f;
 
-    window->gui->NewFrame();
-    world->update(deltaTime);
+        double currentFrame = glfwGetTime();
+        deltaTime = currentFrame - lastFrameTime;
+        lastFrameTime = currentFrame;
 
-    glClearColor(0.0f, 0.0f, 0.0f, 1.0f); 
+        window->gui->NewFrame();
+        world->update(deltaTime);
 
-    world->draw();
-    skybox->draw(world->get_current_camera());
+        glClearColor(0.0f, 0.0f, 0.0f, 1.0f); 
 
-    drawDebugMenu(deltaTime);
-    window->gui->Render();
+        world->draw();
+        skybox->draw(world->get_current_camera());
 
-    window->on_update();
+        drawDebugMenu(deltaTime);
+        window->gui->Render();
+
+        window->on_update();
+    }
+
+    LOG_INFO("Exiting mainloop");
 }
