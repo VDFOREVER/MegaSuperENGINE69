@@ -4,12 +4,12 @@ namespace Engine::Mesh {
     Material::Material() {}
 
     Material::Material(tinygltf::Material &material, tinygltf::Model &model) {
-        LOG_INFO("Loading material: %s", material.name);
-        LOG_INFO("  - baseColorTexture: %d", material.pbrMetallicRoughness.baseColorTexture.index);
-        LOG_INFO("  - normalTexture: %d", material.normalTexture.index);
-        LOG_INFO("  - specularTexture: %d", material.pbrMetallicRoughness.metallicRoughnessTexture.index);
-        LOG_INFO("  - emissiveTexture: %d", material.emissiveTexture.index);
-        LOG_INFO("  - metallicTexture: %d", material.pbrMetallicRoughness.metallicRoughnessTexture.index);
+        // LOG_INFO("Loading material: %s", material.name);
+        // LOG_INFO("  - baseColorTexture: %d", material.pbrMetallicRoughness.baseColorTexture.index);
+        // LOG_INFO("  - normalTexture: %d", material.normalTexture.index);
+        // LOG_INFO("  - specularTexture: %d", material.pbrMetallicRoughness.metallicRoughnessTexture.index);
+        // LOG_INFO("  - emissiveTexture: %d", material.emissiveTexture.index);
+        // LOG_INFO("  - metallicTexture: %d", material.pbrMetallicRoughness.metallicRoughnessTexture.index);
         
         baseColor = Utils::vecX_from_array<glm::vec4>(material.pbrMetallicRoughness.baseColorFactor);
         emissive = Utils::vecX_from_array<glm::vec3>(material.emissiveFactor);

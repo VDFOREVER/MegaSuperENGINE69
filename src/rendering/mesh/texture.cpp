@@ -35,12 +35,12 @@ namespace Engine::Mesh {
         glTexImage2D(GL_TEXTURE_2D, 0, format, image.width, image.height, 0, format, dtype, image.image.data());
         glGenerateMipmap(GL_TEXTURE_2D);
 
-        LOG_INFO("Loading texture: \t name %s, format %d, dtype %d", image.name, format, dtype);
+        // LOG_INFO("Loading texture: \t name %s, format %d, dtype %d", image.name, format, dtype);
     }
 
 
     Texture::~Texture() {
-        LOG_INFO("Deleting texture");
+        // LOG_INFO("Deleting texture");
         glDeleteTextures(1, &ptr);
     }
 

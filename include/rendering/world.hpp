@@ -46,6 +46,6 @@ namespace Engine {
             std::vector<std::shared_ptr<Camera>> cameras;
             std::vector<std::shared_ptr<Buffer>> buffers;
 
-            void process_node(std::vector<std::shared_ptr<Buffer>> buffers, tinygltf::Model model, tinygltf::Node node);
+            void process_node(std::vector<std::shared_ptr<Buffer>> &buffers, tinygltf::Model &model, tinygltf::Node &node);
     };
 }

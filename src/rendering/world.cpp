@@ -1,6 +1,7 @@
 #include <rendering/world.hpp>
 #include <glm/gtc/type_ptr.hpp>
 #include <utils.hpp>
+
 namespace Engine {
 
     World::World(std::string name, std::string path, std::shared_ptr<Shader> shader, std::shared_ptr<Shader> shadow_shader) : name(name), shader(shader), shadow_shader(shadow_shader) {
@@ -21,8 +22,9 @@ namespace Engine {
             buffers.push_back(std::make_shared<Buffer>(buffer.data));
 
         for (auto& scene : model.scenes) {
-            for (auto& node : scene.nodes) {
+            for (auto node : scene.nodes) {
                 process_node(buffers, model, model.nodes[node]);
+                LOG_INFO("Objects loaded: %d (total nodes %d)", objects.size(), model.nodes.size()); 
             }
         }
 
@@ -39,13 +41,13 @@ namespace Engine {
         LOG_INFO("Loaded %d objects", this->objects.size());
     }
 
-    void World::process_node(std::vector<std::shared_ptr<Buffer>> buffers, tinygltf::Model model, tinygltf::Node node) {
-        LOG_INFO("Loading node: %s", node.name);
-        LOG_INFO("  - Children: %d", node.children.size());
-        LOG_INFO("  - Mesh: %d", node.mesh);
-        LOG_INFO("  - Camera: %d", node.camera);
-        LOG_INFO("  - Skin: %d", node.skin);
-        LOG_INFO("  - Weights: %d", node.weights.size());
+    void World::process_node(std::vector<std::shared_ptr<Buffer>> &buffers, tinygltf::Model &model, tinygltf::Node &node) {
+        // LOG_INFO("Loading node: %s", node.name);
+        // LOG_INFO("  - Children: %d", node.children.size());
+        // LOG_INFO("  - Mesh: %d", node.mesh);
+        // LOG_INFO("  - Camera: %d", node.camera);
+        // LOG_INFO("  - Skin: %d", node.skin);
+        // LOG_INFO("  - Weights: %d", node.weights.size());
 
         if (node.mesh > -1) {
             std::shared_ptr<Mesh::Mesh> mesh = std::make_shared<Mesh::Mesh>(buffers, model, model.meshes[node.mesh]);
@@ -92,7 +94,7 @@ namespace Engine {
         }
 
         if (node.children.size() > 0) {
-            for (auto& child : node.children) {
+            for (auto child : node.children) {
                 process_node(buffers, model, model.nodes[child]);
             }
         }

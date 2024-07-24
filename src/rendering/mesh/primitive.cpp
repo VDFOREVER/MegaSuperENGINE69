@@ -3,10 +3,10 @@
 namespace Engine::Mesh {
 
     Primitive::Primitive(std::vector<std::shared_ptr<Buffer>> buffers, tinygltf::Primitive &primitive, tinygltf::Model &model) {
-        LOG_INFO("Loading primitive");
-        LOG_INFO("  - %d attributes", primitive.attributes.size());
-        LOG_INFO("  - indices #%d", primitive.indices);
-        LOG_INFO("  - material #%d", primitive.material);
+        // LOG_INFO("Loading primitive");
+        // LOG_INFO("  - %d attributes", primitive.attributes.size());
+        // LOG_INFO("  - indices #%d", primitive.indices);
+        // LOG_INFO("  - material #%d", primitive.material);
 
         vertex_array.bind();
 
