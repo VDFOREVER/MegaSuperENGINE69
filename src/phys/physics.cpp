@@ -1,55 +1,52 @@
 #include <phys/physics.hpp>
 #include <log.hpp>
 
-Physics::Physics(btVector3 gravity) {
-    collisionConfiguration = std::make_shared<btDefaultCollisionConfiguration>();
-	///use the default collision dispatcher. For parallel processing you can use a diffent dispatcher (see Extras/BulletMultiThreaded)
-	dispatcher = std::make_shared<btCollisionDispatcher>(collisionConfiguration.get());
-	///btDbvtBroadphase is a good general purpose broadphase. You can also try out btAxis3Sweep.
-	overlappingPairCache = std::make_shared<btDbvtBroadphase>();
-	///the default constraint solver. For parallel processing you can use a different solver (see Extras/BulletMultiThreaded)
-	solver = std::make_shared<btSequentialImpulseConstraintSolver>();
-	dynamicsWorld = std::make_shared<btDiscreteDynamicsWorld>(dispatcher.get(), overlappingPairCache.get(), solver.get(), collisionConfiguration.get());
+Physics::Physics() {
+	LOG_INFO("Creating physics object");
 
-	dynamicsWorld->setGravity(gravity);
+    collisionConfiguration	= new btDefaultCollisionConfiguration();
+	dispatcher				= new btCollisionDispatcher(collisionConfiguration);
+	overlappingPairCache	= new btDbvtBroadphase();
+	solver					= new btSequentialImpulseConstraintSolver();
+	dynamicsWorld			= new btDiscreteDynamicsWorld(dispatcher, overlappingPairCache, solver, collisionConfiguration);
+
+	dynamicsWorld->setGravity(btVector3(0, -10, 0));
 }
 
-void Physics::add_RigidBody(std::shared_ptr<Engine::Object> obj) {
-	collisionShapes.push_back(obj->get_collosion());
-	btTransform groundTransform;
-	groundTransform.setIdentity();
-	groundTransform.setOrigin(btVector3(0, 0, 0));
+Physics::~Physics() {
+	LOG_INFO("Destructing physics object");
 
-	float mass = obj->get_mass();
-
-	//rigidbody is dynamic if and only if mass is non zero, otherwise static
-	bool isDynamic = (mass != 0.f);
-
-	btVector3 localInertia(0, 0, 0);
-	if (isDynamic)
-		obj->get_collosion()->calculateLocalInertia(mass, localInertia);
-
-	//using motionstate is optional, it provides interpolation capabilities, and only synchronizes 'active' objects
-	btDefaultMotionState* myMotionState = new btDefaultMotionState(groundTransform);
-	btRigidBody::btRigidBodyConstructionInfo rbInfo(mass, myMotionState, obj->get_collosion().get(), localInertia);
-	btRigidBody* body = new btRigidBody(rbInfo);
-
-	//obj->set_colision(body);
-	dynamicsWorld->addRigidBody(body);
+	delete dynamicsWorld;
+	delete solver;
+	delete overlappingPairCache;
+	delete dispatcher;
+	delete collisionConfiguration;
 }
 
-void Physics::on_update(double delta_time) {
-	dynamicsWorld->stepSimulation(delta_time, 10);
+void Physics::registerCollider(std::shared_ptr<BaseCollider> collider) {
+	dynamicsWorld->addRigidBody(collider->get_rigidBody());
+}
 
-	for (int j = dynamicsWorld->getNumCollisionObjects() - 1; j >= 0; j--) {
-		btCollisionObject* obj = dynamicsWorld->getCollisionObjectArray()[j];
-		btRigidBody* body = btRigidBody::upcast(obj);
-		btTransform trans;
-		if (body && body->getMotionState()) {
-			body->getMotionState()->getWorldTransform(trans);
-		}
-		else {
-			trans = obj->getWorldTransform();
-		}
-	}
+void Physics::deregisterCollider(std::shared_ptr<BaseCollider> collider) {
+	dynamicsWorld->removeRigidBody(collider->get_rigidBody());
+}
+
+void Physics::on_update(double deltaTime) {
+	dynamicsWorld->stepSimulation(deltaTime, 10);
+
+	// LOG_INFO("============== START REPORT ==============");
+
+	// for (int j = dynamicsWorld->getNumCollisionObjects() - 1; j >= 0; j--) {
+	// 	btCollisionObject* obj = dynamicsWorld->getCollisionObjectArray()[j];
+	// 	btRigidBody* body = btRigidBody::upcast(obj);
+	// 	btTransform trans;
+	// 	if (body && body->getMotionState()) {
+	// 		body->getMotionState()->getWorldTransform(trans);
+	// 	} else {
+	// 		trans = obj->getWorldTransform();
+	// 	}
+	// 	LOG_INFO("world pos object %d = %f,%f,%f\n", j, float(trans.getOrigin().getX()), float(trans.getOrigin().getY()), float(trans.getOrigin().getZ()));
+	// }
+
+	// LOG_INFO("============== END REPORT ==============");
 }

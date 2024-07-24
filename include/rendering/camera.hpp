@@ -35,6 +35,7 @@ class Camera {
         float movement_speed        = SPEED;
         float mouse_sensitivity     = SENSITIVITY;
         float yfov                  = FOV;
+        float aspectRatio;
 
         Camera(float aspectRatio, float yfov, float zfar, float znear);
 
@@ -53,8 +54,7 @@ class Camera {
 
     private:
         Type_t type;
-    
-        float aspectRatio;
+
         float zfar;
         float znear;
 

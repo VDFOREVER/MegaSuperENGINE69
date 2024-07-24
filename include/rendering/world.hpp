@@ -30,6 +30,8 @@ namespace Engine {
             void next_camera();
             std::shared_ptr<Camera> get_current_camera();
 
+            std::shared_ptr<Physics> get_physics();
+
         private:
             std::string name;
             std::string directory;
@@ -39,8 +41,8 @@ namespace Engine {
 
             std::shared_ptr<Shader> shader;
             std::shared_ptr<Shader> shadow_shader;
-            //std::shared_ptr<Physics> physics;
             std::shared_ptr<Camera> current_camera;
+            std::shared_ptr<Physics> physics;
             std::vector<std::shared_ptr<Camera>> cameras;
             std::vector<std::shared_ptr<Buffer>> buffers;
 

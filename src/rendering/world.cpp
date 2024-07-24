@@ -12,6 +12,8 @@ namespace Engine {
 
         directory = path.substr(0, path.find_last_of('/'));
 
+        physics = std::make_shared<Physics>();
+
         if (!loader.LoadBinaryFromFile(&model, &err, &warn, path))
             throw std::runtime_error(err);
 
@@ -47,7 +49,7 @@ namespace Engine {
 
         if (node.mesh > -1) {
             std::shared_ptr<Mesh::Mesh> mesh = std::make_shared<Mesh::Mesh>(buffers, model, model.meshes[node.mesh]);
-            std::shared_ptr<Object> object = std::make_shared<Object>(node.name, mesh);
+            std::shared_ptr<Object> object = std::make_shared<Object>(node.name, mesh, physics);
 
             if (node.translation.size() > 0)
                 object->set_position(Utils::vecX_from_array<glm::vec3>(node.translation));
@@ -58,7 +60,7 @@ namespace Engine {
             if (node.scale.size() > 0)
                 object->set_scale(Utils::vecX_from_array<glm::vec3>(node.scale));
 
-            this->objects.push_back(object);
+            this->addObject(object);
         }
 
         if (node.camera > -1) {
@@ -111,6 +113,12 @@ namespace Engine {
 
     void World::update(double deltaTime) {
         this->current_camera->update(deltaTime);
+        physics->on_update(deltaTime);
+
+        ImGui::Begin("Debug Menu2");
+        for (auto& obj : this->objects) 
+            obj->update();
+        ImGui::End();
     }
 
     void World::draw() {
@@ -150,5 +158,9 @@ namespace Engine {
 
     std::shared_ptr<Camera> World::get_current_camera() {
         return current_camera;
+    }
+
+    std::shared_ptr<Physics> World::get_physics() {
+        return physics;
     }
 }

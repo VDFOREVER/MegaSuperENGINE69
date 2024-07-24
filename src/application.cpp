@@ -12,7 +12,23 @@ Application::Application() {
     window = std::make_shared<Window>("VD3D", 640, 420);
     shader = std::make_shared<Shader>("../resource/shader/lighting_vs.glsl", "../resource/shader/lighting_ps.glsl");
     shadow_shader = std::make_shared<Shader>("../resource/shader/shadow_vs.glsl", "../resource/shader/shadow_ps.glsl");
-    world = std::make_shared<Engine::World>("main", "../resource/model/test2.glb", shader, shadow_shader);
+    world = std::make_shared<Engine::World>("main", "../resource/model/untitled.glb", shader, shadow_shader);
+
+    std::vector<std::string> faces = {
+        "../resource/skybox/right.jpg",
+        "../resource/skybox/left.jpg",
+        "../resource/skybox/top.jpg",
+        "../resource/skybox/bottom.jpg",
+        "../resource/skybox/front.jpg",
+        "../resource/skybox/back.jpg"
+    };
+    skybox = std::make_shared<Skybox>(faces);
+
+    std::shared_ptr<Engine::Object> dust2 = world->getObjectByName("de_dust2");
+    std::shared_ptr<Engine::Object> cube = world->getObjectByName("Cube");
+
+    dust2->set_mass(0.0f);
+    cube->set_mass(1.0f);
 
     directLight_t* directLight = world->lighting.get_direct_light();
 
@@ -126,6 +142,7 @@ void Application::drawDebugMenu(double deltaTime) {
         ImGui::SliderFloat("##camspeed", &camera->movement_speed, 0.0f, 500.0f, "%.3f units");
         ImGui::SliderFloat("##camfov", &camera->yfov, glm::radians(10.0f), glm::radians(120.0f), "%.3f");
         ImGui::SliderFloat("##camsens", &camera->mouse_sensitivity, 0.0f, 0.1f, "%.3f");
+        ImGui::SliderFloat("##camaratio", &camera->aspectRatio, 1.0f, 3.0f, "%.3f");
     }
 
     if (ImGui::CollapsingHeader("Point Lights")) {
@@ -193,6 +210,17 @@ void Application::drawDebugMenu(double deltaTime) {
         ImGui::ColorEdit3("##dlspec", (float*)&light->specular, ImGuiColorEditFlags_Float);
     }
 
+    // if (ImGui::CollapsingHeader("Objects")) {
+    //     std::shared_ptr<Engine::Object> xui = world->getObjectByName("Plane");
+    //     std::shared_ptr<Engine::Object> plug = world->getObjectByName("plug");
+
+    //     ImGui::Text("[Plane] pos %s",  Engine::Utils::vecX_to_str(xui->get_position()).c_str());
+    //     ImGui::Text("[Plane] rot %s",  Engine::Utils::vecX_to_str(xui->get_rotation()).c_str());
+
+    //     ImGui::Text("[plug] pos %s",  Engine::Utils::vecX_to_str(plug->get_position()).c_str());
+    //     ImGui::Text("[plug] rot %s",  Engine::Utils::vecX_to_str(plug->get_rotation()).c_str());
+    // }
+
     ImGui::End();
 }
 
@@ -203,13 +231,14 @@ void Application::draw() {
     deltaTime = currentFrame - lastFrameTime;
     lastFrameTime = currentFrame;
 
+    window->gui->NewFrame();
     world->update(deltaTime);
 
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f); 
 
     world->draw();
+    skybox->draw(world->get_current_camera());
 
-    window->gui->NewFrame();
     drawDebugMenu(deltaTime);
     window->gui->Render();
 

@@ -4,6 +4,7 @@
 #include <rendering/world.hpp>
 #include <rendering/mesh/mesh.hpp>
 #include <rendering/object.hpp>
+#include <rendering/skybox.hpp>
 #include <window.hpp>
 #include <event.hpp>
 #include <rendering/camera.hpp>
@@ -17,6 +18,7 @@ class Application {
     private:
         std::shared_ptr<Window> window;
         std::shared_ptr<Shader> shader;
+        std::shared_ptr<Skybox> skybox;
         std::shared_ptr<Shader> shadow_shader;
         std::shared_ptr<Engine::World> world;
 

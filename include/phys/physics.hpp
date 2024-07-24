@@ -1,21 +1,24 @@
 #pragma once
 
 #include <bullet/btBulletDynamicsCommon.h>
-#include <rendering/object.hpp>
 #include <memory>
+#include <phys/baseCollider.hpp>
 
 class Physics {
     public:
-        Physics(btVector3 gravity);
+        Physics();
+        ~Physics();
 
-        void add_RigidBody(std::shared_ptr<Engine::Object> obj);
-        void on_update(double delta_time);
+        void registerCollider(std::shared_ptr<BaseCollider> collider);
+        void deregisterCollider(std::shared_ptr<BaseCollider> collider);
+
+        void on_update(double deltaTime);
 
     private:
-        btAlignedObjectArray<std::shared_ptr<btCollisionShape>> collisionShapes;
-        std::shared_ptr<btDefaultCollisionConfiguration> collisionConfiguration;
-        std::shared_ptr<btCollisionDispatcher> dispatcher;
-        std::shared_ptr<btBroadphaseInterface> overlappingPairCache;
-        std::shared_ptr<btSequentialImpulseConstraintSolver> solver;
-        std::shared_ptr<btDiscreteDynamicsWorld> dynamicsWorld;
+        btAlignedObjectArray<btCollisionShape*> collisionShapes;
+        btDefaultCollisionConfiguration* collisionConfiguration;
+        btCollisionDispatcher* dispatcher;
+        btBroadphaseInterface* overlappingPairCache;
+        btSequentialImpulseConstraintSolver* solver;
+        btDiscreteDynamicsWorld* dynamicsWorld;
 };

@@ -8,31 +8,31 @@
 #include <rendering/shader.hpp>
 #include <rendering/mesh/mesh.hpp>
 #include <memory>
-#include <bullet/btBulletDynamicsCommon.h>
+#include <phys/boxCollider.hpp>
+#include <phys/physics.hpp>
 
 namespace Engine {
     class Object {
         public:
             std::string name;
-            Object(std::string name, std::shared_ptr<Mesh::Mesh> mesh);
+            Object(std::string name, std::shared_ptr<Mesh::Mesh> mesh, std::shared_ptr<Physics> phys);
 
             void set_position(glm::vec3 position);
             void set_rotation(glm::quat rotation);
             void set_scale(glm::vec3 scale);
 
-            glm::vec3 get_pos();
+            void set_mass(float mass);
+
+            glm::vec3 get_position();
             glm::quat get_rotation();
             glm::vec3 get_scale();
-
-            void set_mass(float new_mass);
-            float get_mass();
-
-            void set_collision(std::shared_ptr<btCollisionShape> new_collision);
-            std::shared_ptr<btCollisionShape> get_collosion();
 
             void add_mesh(std::shared_ptr<Mesh::Mesh> mesh);
 
             void draw(std::shared_ptr<Shader> shader);
+            void update();
+
+            std::shared_ptr<BaseCollider> get_collider(); 
 
         private:
             std::shared_ptr<Mesh::Mesh> mesh;
@@ -45,7 +45,7 @@ namespace Engine {
             glm::mat4x4 rotationMatrix  = glm::mat4x4(1.0f);
             glm::mat4x4 scaleMatrix     = glm::mat4x4(1.0f);
 
-            float mass = 1.0f;
-            std::shared_ptr<btCollisionShape> collision;
+            std::shared_ptr<BaseCollider> collider;
+            std::shared_ptr<Physics> phys;
     };
 }
