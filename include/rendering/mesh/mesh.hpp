@@ -18,7 +18,7 @@ namespace Engine::Mesh {
 
     class Mesh : public Drawable {
         public:
-            Mesh(std::vector<std::shared_ptr<Buffer>> buffers, tinygltf::Model &model, tinygltf::Mesh &mesh);
+            Mesh(std::vector<std::shared_ptr<Buffer>> &buffers, tinygltf::Model &model, tinygltf::Mesh &mesh);
             void draw(std::shared_ptr<Shader> shader);
 
         private:

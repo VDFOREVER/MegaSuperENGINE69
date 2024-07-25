@@ -2,7 +2,7 @@
 
 namespace Engine::Mesh {
 
-    Primitive::Primitive(std::vector<std::shared_ptr<Buffer>> buffers, tinygltf::Primitive &primitive, tinygltf::Model &model) {
+    Primitive::Primitive(std::vector<std::shared_ptr<Buffer>> &buffers, tinygltf::Primitive &primitive, tinygltf::Model &model) {
         // LOG_INFO("Loading primitive");
         // LOG_INFO("  - %d attributes", primitive.attributes.size());
         // LOG_INFO("  - indices #%d", primitive.indices);

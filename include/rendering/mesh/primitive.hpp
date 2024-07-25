@@ -18,7 +18,7 @@
 namespace Engine::Mesh {
     class Primitive {
         public:
-            Primitive(std::vector<std::shared_ptr<Buffer>> buffers, tinygltf::Primitive &primitive, tinygltf::Model &model);
+            Primitive(std::vector<std::shared_ptr<Buffer>> &buffers, tinygltf::Primitive &primitive, tinygltf::Model &model);
 
             void draw(std::shared_ptr<Shader> shader);
 
