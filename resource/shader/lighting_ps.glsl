@@ -2,10 +2,19 @@
 
 #define MAX_POINT_LIGHTS 16
 
-#define LIGHT_FLAG_ENABLED 0x1
+#define FLAG(f) uint(f)
+
+#define MAT_DIFFUSE_TEXTURE    FLAG(0x01)
+#define MAT_SPECULAR_TEXTURE   FLAG(0x02)
+#define MAT_NORMAL_TEXTURE     FLAG(0x04)
+#define MAT_EMISSIVE_TEXTURE   FLAG(0x08)
+#define MAT_METALLIC_TEXTURE   FLAG(0x10)
+
+#define LIGHT_FLAG_ENABLED     FLAG(0x01)
 
 in vec3 fragNormal;
 in vec3 fragPos;
+in vec4 shadowCoord;
 in vec2 texCoords;
 
 out vec4 color;
@@ -22,6 +31,8 @@ uniform struct {
 
     float metallic;
     float shininess;
+
+    uint flags;
 } material;
 
 uniform struct pointLignt_t {
@@ -35,7 +46,7 @@ uniform struct pointLignt_t {
     float linear;
     float quadratic;
 
-    int flags;
+    uint flags;
 } pointLights[MAX_POINT_LIGHTS];
 
 uniform struct directLignt_t {
@@ -45,10 +56,15 @@ uniform struct directLignt_t {
     vec3 diffuse;
     vec3 specular;
 
-    int flags;
+    uint flags;
 } directLight;
 
 uniform vec3        cameraPos;
+uniform sampler2D   shadowMap;
+
+bool bit_test(uint value, uint flag) {
+    return (value & flag) == flag;
+}
 
 vec3 calcDirLight(directLignt_t light, vec3 normal, vec3 viewDir) {
     vec3 lightDir = normalize(-light.direction);
@@ -61,19 +77,40 @@ vec3 calcDirLight(directLignt_t light, vec3 normal, vec3 viewDir) {
     vec3 diffuse = light.diffuse * diff;
     vec3 specular = light.specular * spec;
 
-    if (texture(material.tDiffuse, texCoords).x > 0) {
-        ambient *= vec3(texture2D(material.tDiffuse, texCoords));
-        diffuse *= vec3(texture2D(material.tDiffuse, texCoords));
+    if (bit_test(material.flags, MAT_DIFFUSE_TEXTURE)) {
+        ambient *= texture2D(material.tDiffuse, texCoords).rgb;
+        diffuse *= texture2D(material.tDiffuse, texCoords).rgb;
     } else {
         ambient *= material.baseColor;
         diffuse *= material.baseColor;
     }
 
-    if (texture(material.tSpecular, texCoords).x > 0) {
-        specular *= vec3(texture2D(material.tSpecular, texCoords));
+    if (bit_test(material.flags, MAT_SPECULAR_TEXTURE)) {
+        specular *= texture2D(material.tSpecular, texCoords).rgb;
     } else {
         specular *= material.baseColor;
     }
+
+    float bias = 0.0001;
+    float visibility = 0.0;
+    vec2 texelSize = 1.0 / textureSize(shadowMap, 0);
+    for(int x = -3; x <= 3; ++x) {
+        for(int y = -3; y <= 3; ++y) {
+            float pcfDepth = texture2D(shadowMap, shadowCoord.xy + vec2(x, y) * texelSize).r; 
+            visibility += shadowCoord.z - bias > pcfDepth ? 1.0 : 0.0;        
+        }    
+    }
+    visibility /= 6.0 * 6.0 * 1.9;
+    visibility = 1 - visibility;
+
+    // float bias = 0.0001;
+    // float visibility = 1.0;
+    // if (texture2D(shadowMap, shadowCoord.xy).z < shadowCoord.z - bias){
+    //     visibility = 0.5;
+    // }
+
+    diffuse *= visibility;
+    specular *= visibility;
 
     return (ambient + diffuse + specular);
 }
@@ -92,16 +129,16 @@ vec3 calcPointLight(pointLignt_t light, vec3 normal, vec3 fragPos, vec3 viewDir)
     vec3 diffuse = light.diffuse * diff;
     vec3 specular = light.specular * spec;
 
-    if (texture(material.tDiffuse, texCoords).x > 0) {
-        ambient *= vec3(texture2D(material.tDiffuse, texCoords));
-        diffuse *= vec3(texture2D(material.tDiffuse, texCoords));
+    if (bit_test(material.flags, MAT_DIFFUSE_TEXTURE)) {
+        ambient *= texture2D(material.tDiffuse, texCoords).rgb;
+        diffuse *= texture2D(material.tDiffuse, texCoords).rgb;
     } else {
         ambient *= material.baseColor;
         diffuse *= material.baseColor;
     }
 
-    if (texture(material.tSpecular, texCoords).x > 0) {
-        specular *= vec3(texture2D(material.tSpecular, texCoords));
+    if (bit_test(material.flags, MAT_SPECULAR_TEXTURE)) {
+        specular *= texture2D(material.tSpecular, texCoords).rgb;
     } else {
         specular *= material.baseColor;
     }
@@ -119,12 +156,12 @@ void main() {
 
     vec3 resultColor = vec3(0.0);
 
-    if ((directLight.flags & LIGHT_FLAG_ENABLED) == LIGHT_FLAG_ENABLED) {
+    if (bit_test(directLight.flags, LIGHT_FLAG_ENABLED)) {
         resultColor += calcDirLight(directLight, normal, viewDir);
     }
 
     for (int i = 0; i < MAX_POINT_LIGHTS; i++) {
-        if ((pointLights[i].flags & LIGHT_FLAG_ENABLED) == LIGHT_FLAG_ENABLED) {
+        if (bit_test(pointLights[i].flags, LIGHT_FLAG_ENABLED)) {
             resultColor += calcPointLight(pointLights[i], normal, fragPos, viewDir);
         }
     }

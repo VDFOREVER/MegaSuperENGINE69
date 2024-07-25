@@ -7,8 +7,8 @@
 #include <rendering/object.hpp>
 #include <rendering/shader.hpp>
 #include <rendering/camera.hpp>
-#include <rendering/light.hpp>
 #include <rendering/buffer.hpp>
+#include <lighting/lighting.hpp>
 #include <phys/physics.hpp>
 
 #include <tiny_gltf.h>
@@ -33,6 +33,10 @@ namespace Engine {
             std::shared_ptr<Physics> get_physics();
 
         private:
+            const unsigned int SHADOW_WIDTH = 1024 * 4, SHADOW_HEIGHT = 1024 * 4;
+            GLuint depthmap_fb;
+            GLuint depthmap;
+
             std::string name;
             std::string directory;
             bool gammaCorrection;

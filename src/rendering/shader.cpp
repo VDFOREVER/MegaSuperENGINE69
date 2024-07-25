@@ -73,5 +73,16 @@ Shader::~Shader() {
 }
 
 void Shader::use() { 
+    glCullFace(culling_mode);
+    glDepthFunc(depth_mode);
+
     glUseProgram(program);
+}
+
+void Shader::set_culling_mode(GLuint mode) {
+    culling_mode = mode;
+}
+
+void Shader::set_depth_mode(GLuint mode) {
+    depth_mode = mode;
 }

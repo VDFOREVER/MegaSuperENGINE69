@@ -23,7 +23,12 @@ class Shader {
             // if (loc == UINT32_MAX)
             //     throw std::runtime_error("Uniform " + name + " not found");
 
-            // LOG_INFO("Setting uniform %s (at 0x%08x)", name.c_str(), (uint32_t)loc);
+            // uint32_t v = 0;
+            // if constexpr (std::is_same_v<T, uint32_t>) {
+            //     v = value;      
+            // }
+
+            // LOG_INFO("Setting uniform %s (at 0x%08x) to value 0x%08x", name.c_str(), (uint32_t)loc, v);
 
             if constexpr SET_UNIFORM_MATRIX(glm::mat4, glUniformMatrix4fv);
             else if constexpr SET_UNIFORM_MATRIX(glm::mat3, glUniformMatrix3fv);
@@ -35,7 +40,13 @@ class Shader {
             else if constexpr SET_UNIFORM_VALUE1(float, glUniform1fv);
             else throw std::runtime_error("Unsupported type");
         }
+
+        void set_culling_mode(GLuint mode);
+        void set_depth_mode(GLuint mode);
                 
     private:
         GLuint program;
+
+        GLuint culling_mode = GL_NONE;
+        GLuint depth_mode   = GL_NONE;
 };

@@ -36,5 +36,17 @@ namespace Engine::Mesh {
             std::shared_ptr<Texture> specularTexture    = nullptr;
             std::shared_ptr<Texture> emissiveTexture    = nullptr;
             std::shared_ptr<Texture> metallicTexture    = nullptr;
+
+            union {
+                uint32_t flags;
+                struct {
+                    uint32_t hasDiffuseColor : 1;
+                    uint32_t hasNormal : 1;
+                    uint32_t hasSpecular : 1;
+                    uint32_t hasEmissive : 1;
+                    uint32_t hasMetallic : 1;
+                    uint32_t reserved : 27;
+                };
+            };
     };
 }

@@ -39,6 +39,25 @@ namespace Engine {
         }
 
         LOG_INFO("Loaded %d objects", this->objects.size());
+
+        glGenFramebuffers(1, &depthmap_fb);
+        glBindFramebuffer(GL_FRAMEBUFFER, depthmap_fb);
+
+        // create depth texture
+        glGenTextures(1, &depthmap);
+        glBindTexture(GL_TEXTURE_2D, depthmap);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT16, SHADOW_WIDTH, SHADOW_HEIGHT, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+
+        // attach depth texture as FBO's depth buffer
+        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, depthmap, 0);
+        // glFramebufferTexture(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, depthmap, 0);
+        glDrawBuffer(GL_NONE);
+        glReadBuffer(GL_NONE);
+        glBindFramebuffer(GL_FRAMEBUFFER, 0);
     }
 
     void World::process_node(std::vector<std::shared_ptr<Buffer>> &buffers, tinygltf::Model &model, tinygltf::Node &node) {
@@ -124,22 +143,64 @@ namespace Engine {
     }
 
     void World::draw() {
+        // Save viewport size
+        int width, height;
+        glfwGetWindowSize(glfwGetCurrentContext(), &width, &height);
+
         // Shadow draw
-        // glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);   
+        glBindFramebuffer(GL_FRAMEBUFFER, depthmap_fb);
+        glViewport(0, 0, SHADOW_WIDTH, SHADOW_HEIGHT);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);   
 
-        // this->shader->use();
+        this->shadow_shader->use();
 
-        // this->current_camera->bind(this->shader);
-        // this->lighting.bind(this->shader);
+        // setup stuff
 
-        // for (auto& object : this->objects)
-        //     object->draw(this->shader);
+        float dist = 5000.0f;
+        float half_dist = dist / 2.0f;
+        float near_plane = -half_dist, far_plane = half_dist;
 
+        DirectLight* light = lighting.get_direct_light();
+
+        glm::mat4 lightProjection   = glm::ortho(dist, -dist, dist, -dist, near_plane, far_plane);
+        glm::mat4 lightView         = glm::lookAt(-light->data.direction, glm::vec3(0,0,0), glm::vec3(0,1,0));
+        glm::mat4 lightSpaceMatrix  = lightProjection * lightView;
+
+        this->shadow_shader->set_uniform("lightSpaceMatrix", lightSpaceMatrix);
+
+        // draw scene
+        for (auto& object : this->objects)
+            object->draw(this->shadow_shader);
+
+        // ImGui::Begin("Framebuffer");
+
+        // ImGui::Text("Position");
+        // ImGui::SliderFloat("##posx", &light->data.direction.x, -1.0f, 1.0f, "X %.3f");
+        // ImGui::SliderFloat("##posy", &light->data.direction.y, -1.0f, 1.0f, "Y %.3f");
+        // ImGui::SliderFloat("##posz", &light->data.direction.z, -1.0f, 1.0f, "Z %.3f");
+
+        // ImGui::Image((void*)(intptr_t)depthmap, ImVec2(SHADOW_WIDTH, SHADOW_HEIGHT));
+        // ImGui::End();
 
         // Normal draw
+        glBindFramebuffer(GL_FRAMEBUFFER, 0);
+        glViewport(0, 0, width, height);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);   
 
         this->shader->use();
+
+        glm::mat4 biasMatrix(
+            0.5, 0.0, 0.0, 0.0,
+            0.0, 0.5, 0.0, 0.0,
+            0.0, 0.0, 0.5, 0.0,
+            0.5, 0.5, 0.5, 1.0
+        );
+
+        this->shader->set_uniform("shadowMap", 15);
+        this->shader->set_uniform("biasMatrix", biasMatrix * lightSpaceMatrix);
+
+        glActiveTexture(GL_TEXTURE0 + 15);
+        glBindTexture(GL_TEXTURE_2D, depthmap);
 
         this->current_camera->bind(this->shader);
         this->lighting.bind(this->shader);
