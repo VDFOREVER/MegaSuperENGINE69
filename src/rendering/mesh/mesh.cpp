@@ -2,7 +2,7 @@
 
 namespace Engine::Mesh {
 
-    Mesh::Mesh(std::vector<std::shared_ptr<Buffer>> buffers, tinygltf::Model &model, tinygltf::Mesh &mesh) {
+    Mesh::Mesh(std::vector<std::shared_ptr<Buffer>> &buffers, tinygltf::Model &model, tinygltf::Mesh &mesh) {
         // LOG_INFO("Loading mesh: %s", mesh.name);
         // LOG_INFO("  - Primitives: %d", mesh.primitives.size());
 

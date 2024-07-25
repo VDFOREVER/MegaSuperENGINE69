@@ -12,7 +12,7 @@ Application::Application() {
     window          = std::make_shared<Window>("VD3D", 640, 420);
     shader          = std::make_shared<Shader>("../resource/shader/lighting_vs.glsl", "../resource/shader/lighting_ps.glsl");
     shadow_shader   = std::make_shared<Shader>("../resource/shader/shadow_vs.glsl", "../resource/shader/shadow_ps.glsl");
-    world           = std::make_shared<Engine::World>("main", "../resource/model/untitled.glb", shader, shadow_shader);
+    world           = std::make_shared<Engine::World>("main", "../resource/model/de_dust2_phys.glb", shader, shadow_shader);
 
     shader->set_culling_mode(GL_BACK);
     shader->set_depth_mode(GL_LESS);
