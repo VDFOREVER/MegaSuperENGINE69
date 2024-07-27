@@ -6,7 +6,7 @@
 #include <functional>
 #include <string>
 #include <glm/ext/vector_float2.hpp>
-#include <rendering/gui.hpp>
+#include <render/gui.hpp>
 #include <memory>
 
 class Window {

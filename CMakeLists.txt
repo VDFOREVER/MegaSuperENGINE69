@@ -14,7 +14,9 @@ set(GLFW_BUILD_WAYLAND OFF)
 find_package(Bullet REQUIRED)
 
 add_executable(${PROJECT} ${SRC_FILES})
-target_include_directories(${PROJECT} PRIVATE include ${BULLET_INCLUDE_DIRS})
+include_directories(include)
+target_include_directories(${PROJECT} PRIVATE ${BULLET_INCLUDE_DIRS})
+
 
 add_subdirectory(subprojects/glad)
 add_subdirectory(subprojects/glfw)
