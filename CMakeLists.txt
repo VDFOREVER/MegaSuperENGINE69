@@ -12,6 +12,8 @@ set(GLFW_BUILD_X11 ON)
 set(GLFW_BUILD_WAYLAND OFF)
 
 find_package(Bullet REQUIRED)
+find_package(SndFile REQUIRED)
+find_package(OpenAL REQUIRED)
 
 add_executable(${PROJECT} ${SRC_FILES})
 include_directories(include)
@@ -23,7 +25,7 @@ add_subdirectory(subprojects/glfw)
 add_subdirectory(subprojects/glm)
 add_subdirectory(subprojects/tinygltf)
 
-target_link_libraries(${PROJECT} glfw glad glm tinygltf ${BULLET_LIBRARIES})
+target_link_libraries(${PROJECT} glfw glad glm tinygltf SndFile::sndfile OpenAL::OpenAL ${BULLET_LIBRARIES})
 
 #imgui
 set(IMGUI_SOURCES
