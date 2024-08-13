@@ -19,10 +19,6 @@
 
 using namespace Engine;
 
-#include <audio/soundDevice.hpp>
-#include <audio/soundEffectsLibrary.hpp>
-#include <audio/soundEffectsPlayer.hpp>
-
 Application::Application() {
     window          = std::make_shared<Window>("VD3D", 640, 420);
     world           = std::make_shared<World>("main", RESOURCE_MODEL("de_dust2.glb"));
@@ -117,11 +113,6 @@ void Application::run() {
 
     glEnable(GL_CULL_FACE);
     glEnable(GL_DEPTH_TEST);
-
-    SoundDevice* sd = LISTENER->Get();
-    int SciFiSound = SE_LOAD("../resource/sounds/222.mp3");
-    SoundEffectsPlayer sound;
-	sound.Play(SciFiSound);
 
     mainloop();
 }
