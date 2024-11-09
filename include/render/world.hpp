@@ -4,6 +4,7 @@
 #include <memory>
 #include <map>
 #include <utility>
+#include <future>
 
 #include <render/shader.hpp>
 #include <render/buffer.hpp>
@@ -50,7 +51,6 @@ namespace Engine {
 
         private:
             std::string name;
-            std::string directory;
             bool gammaCorrection;
 
             std::vector<std::shared_ptr<DrawableObject>> objects;

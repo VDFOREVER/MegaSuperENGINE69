@@ -5,8 +5,8 @@
 
 bool Shader::log_uniforms = false;
 
-std::string read_shader(std::string filename) {
-    std::cout << "Reading shader: " << filename << std::endl;
+std::string Shader::readShader(const std::string &filename) {
+    LOG_INFO("Reading shader: %s", filename);
     std::ifstream shader(filename);
 
     if (shader.is_open()) {
@@ -15,11 +15,11 @@ std::string read_shader(std::string filename) {
         return sstr.str();
     }
 
-    std::cout << "Could not open shader file: " << filename << std::endl;
+    LOG_ERROR("Could not open shader file: %s", filename);
     return "";
 }
 
-Shader::Shader(std::string vertexShaderPath, std::string fragmentShaderPath) {
+Shader::Shader(const std::string &vertexShaderPath, const std::string &fragmentShaderPath) {
     GLint success;
     GLchar infoLog[512];
 
@@ -27,8 +27,8 @@ Shader::Shader(std::string vertexShaderPath, std::string fragmentShaderPath) {
     GLuint fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
     this->program = glCreateProgram();
 
-    std::string vs_source = read_shader(vertexShaderPath);
-    std::string ps_source = read_shader(fragmentShaderPath);
+    std::string vs_source = readShader(vertexShaderPath);
+    std::string ps_source = readShader(fragmentShaderPath);
 
     const GLchar* vShaderCode = vs_source.c_str();
     const GLchar* fShaderCode = ps_source.c_str();

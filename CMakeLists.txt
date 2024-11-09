@@ -8,15 +8,11 @@ file(GLOB_RECURSE SRC_FILES "src/*.cpp")
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-set(GLFW_BUILD_X11 ON)
-set(GLFW_BUILD_WAYLAND OFF)
-
 find_package(Bullet REQUIRED)
 
 add_executable(${PROJECT} ${SRC_FILES})
 include_directories(include)
 target_include_directories(${PROJECT} PRIVATE ${BULLET_INCLUDE_DIRS})
-
 
 add_subdirectory(subprojects/glad)
 add_subdirectory(subprojects/glfw)

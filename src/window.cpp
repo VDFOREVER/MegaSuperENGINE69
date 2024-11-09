@@ -64,7 +64,7 @@ Window::Window(std::string title, const unsigned int width, const unsigned int h
     }
 
     glfwMakeContextCurrent(m_Window);
-    glfwSwapInterval(0);
+    glfwSwapInterval(1);
 
     if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
         LOG_CRITICAL("GLAD Load");
