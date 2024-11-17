@@ -123,6 +123,10 @@ void Application::drawDebugMenu(double deltaTime) {
     ImGui::Begin("Debug Menu");
     ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
 
+    static bool vsync = 1;
+    ImGui::Checkbox("Vsync enabled", &vsync);
+    glfwSwapInterval(vsync);
+
     if (ImGui::CollapsingHeader("Camera settings")) {
         if (ImGui::Button("Next Camera"))
             world->next_camera();
