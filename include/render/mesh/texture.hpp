@@ -4,6 +4,7 @@
 #include <vector>
 #include <memory>
 #include <map>
+#include <future>
 
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>

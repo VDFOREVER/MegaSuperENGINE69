@@ -10,7 +10,7 @@ class Shader {
     public:
         static bool log_uniforms;
 
-        Shader(std::string vertexShaderSource, std::string fragmentShaderSource);
+        Shader(const std::string& vertexShaderSource, const std::string& fragmentShaderSource);
         ~Shader();
         void use();
 
@@ -51,6 +51,7 @@ class Shader {
         void set_depth_mode(GLuint mode);
                 
     private:
+        std::string readShader(const std::string &filename);
         GLuint program;
 
         GLuint culling_mode = GL_FRONT_AND_BACK;

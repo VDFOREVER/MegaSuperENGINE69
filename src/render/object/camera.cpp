@@ -3,7 +3,7 @@
 #include <map>
 
 namespace Engine {
-
+    
     Camera::Camera(float aspectRatio, float yfov, float znear, float zfar) : type(PERSPECTIVE) {
         this->aspectRatio = aspectRatio;
         this->yfov = yfov;
@@ -79,11 +79,6 @@ namespace Engine {
     }
 
     void Camera::drawGUI() {
-        static float width = 800.0f;
-        static float height = 600.0f;
-
-        aspectRatio = width / height;
-
         ImGui::Text("Camera Position: %s", Utils::vecX2str(position).c_str());
         ImGui::Text("Camera Front: %s", Utils::vecX2str(front).c_str());
         ImGui::Text("Camera Right: %s", Utils::vecX2str(right).c_str());
@@ -92,7 +87,6 @@ namespace Engine {
         ImGui::SliderFloat("##camspeed", &movement_speed, 0.0f, 500.0f, "%.3f units");
         ImGui::SliderFloat("##camfov", &yfov, glm::radians(10.0f), glm::radians(120.0f), "%.3f");
         ImGui::SliderFloat("##camsens", &mouse_sensitivity, 0.0f, 0.1f, "%.3f");
-        ImGui::SliderFloat("##camaratiow", &width, 200, 2000, "%.3f W");
-        ImGui::SliderFloat("##camaratioh", &height, 200, 2000, "%.3f H");
+        ImGui::SliderFloat("##aspectRatio", &aspectRatio, 0.1f, 5.0f, "%.3f W");
     }
 }

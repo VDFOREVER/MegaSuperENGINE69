@@ -1,7 +1,7 @@
 #include <render/mesh/texture.hpp>
 
 namespace Engine::Mesh {
-
+    
     const std::map<Texture::Type_t, std::string> Texture::names = {
         { DIFFUSE,  "tDiffuse"   },
         { NORMAL,   "tNormal"    },
@@ -20,18 +20,36 @@ namespace Engine::Mesh {
                 glBindTexture(GL_TEXTURE_CUBE_MAP, ptr);
 
                 std::vector<std::string> faces = { "/right.jpg", "/left.jpg", "/top.jpg", "/bottom.jpg", "/front.jpg", "/back.jpg" };
+                std::vector<std::future<void>> results;
 
-                int width, height, nrChannels;
+                typedef struct {
+                    uint8_t* data;
+                    unsigned int index;
+                    int width;
+                    int height;
+                } AsyncData;
+                std::vector<AsyncData> asyncData;
+
                 for (unsigned int i = 0; i < faces.size(); i++) {
-                    LOG_INFO("Loading cubemap texture: %s", (path + faces[i]));
+                    results.emplace_back(std::async(std::launch::async, [&, i, faces]{
+                        LOG_INFO("Loading cubemap texture: %s", (path + faces[i]));
 
-                    uint8_t* data = stbi_load((path + faces[i]).c_str(), &width, &height, &nrChannels, 0);
-                    if (data)
-                        glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
-                    else
-                        LOG_ERROR("Cubemap tex failed to load at path: %s", faces[i]);
+                        int width, height;
+                        uint8_t* data = stbi_load((path + faces[i]).c_str(), &width, &height, nullptr, 0);
+                        if (data)
+                            asyncData.emplace_back(data, i, width, height);
+                        else
+                            LOG_ERROR("Cubemap tex failed to load at path: %s", faces[i]);
+                    }));
+                }
 
-                    stbi_image_free(data);
+                for(auto& process : results)
+                    process.get();
+
+                for(const auto& item : asyncData) {
+                    glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + item.index, 0, GL_RGB, item.width, item.height, 0, GL_RGB, GL_UNSIGNED_BYTE, item.data);
+                    stbi_image_free(item.data);
+                    asyncData.clear();
                 }
 
                 glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);

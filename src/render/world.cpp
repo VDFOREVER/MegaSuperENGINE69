@@ -11,13 +11,11 @@ namespace Engine {
         std::string err;
         std::string warn;
 
-        directory = path.substr(0, path.find_last_of('/'));
-
         // physics = std::make_shared<Physics>();
 
         if (!loader.LoadBinaryFromFile(&model, &err, &warn, path))
             throw std::runtime_error(err);
-
+            
         for (auto& buffer : model.buffers)
             data.buffers.push_back(std::make_shared<Buffer>(buffer.data));
 
