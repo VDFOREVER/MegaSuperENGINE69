@@ -1,6 +1,5 @@
 #include <application.hpp>
 
-#define RESOURCE_PATH           "../resource/"
 #define RESOURCE(x)             RESOURCE_PATH x
 #define RESOURCE_SHADER(x)      RESOURCE("shader/" x)
 #define RESOURCE_MODEL(x)       RESOURCE("model/" x)
@@ -83,7 +82,7 @@ Application::Application() {
                 }
             }
             Input::release_key(event.key_code);
-        }); 
+        });
 
     m_event_dispatcher.add_event_listener<EventKeyReleased>(
         [&](EventKeyReleased& event)
@@ -104,7 +103,7 @@ Application::Application() {
 
             if (event.key_code == KeyCode::KEY_LEFT_SHIFT)
                 camera->acceleration = false;
-        }); 
+        });
 }
 
 void Application::run() {

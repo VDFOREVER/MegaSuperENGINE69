@@ -1,0 +1,62 @@
+name: Build CMake Project with Wayland and X11
+
+on:
+  push:
+    branches:
+      - master
+      - dev/add_github_actions_build
+  pull_request:
+    branches:
+      - master
+
+jobs:
+  build:
+    runs-on: ubuntu-22.04
+
+    strategy:
+      matrix:
+        environment: [wayland, x11]
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Set up dependencies
+        run: |
+          sudo apt update
+          sudo apt install -y \
+            cmake \
+            build-essential \
+            libbullet-dev \
+            libbullet3.24 \
+            libxrandr-dev \
+            libxkbcommon-dev \
+            libglu1-mesa-dev
+
+      - name: Install additional dependencies for Wayland or X11
+        run: |
+          if [[ "${{ matrix.environment }}" == "wayland" ]]; then
+            sudo apt install -y libwayland-dev 
+          elif [[ "${{ matrix.environment }}" == "x11" ]]; then
+            sudo apt install -y libx11-dev libxinerama-dev libxcursor-dev libxi-dev
+          fi
+
+      - name: Sync submodules
+        run: git submodule update --init --recursive
+
+      - name: Configure and build project
+        run: |
+          mkdir build
+          cd build
+          cmake -DRESOURCE_PATH="./resource/" ..
+          cmake --build . -- -j$(nproc)
+
+      - name: Copy resources
+        run: |
+          cp -r ${{ github.workspace }}/resource ${{ github.workspace }}/output
+
+      - name: Upload Artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: build-artifacts
+          path: ${{ github.workspace }}/output
